@@ -21,7 +21,7 @@ void setup()
   lcd.begin();
   lcd.backlight();
   lcd.setCursor(0, 0);
-  lcd.print("Redy");
+  lcd.print("Ready");
   Led.TurnOn(colors::Green);
   Serial.begin(9600);
 
