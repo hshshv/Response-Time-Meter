@@ -17,60 +17,58 @@ RGBLed Led(4, 5, 6);
 void setup()
 {
   RespTime.InPin = 2;
-  //Wire.begin();
   lcd.begin();
   lcd.backlight();
   lcd.setCursor(0, 0);
   lcd.print("Ready");
   Led.TurnOn(colors::Green);
   Serial.begin(9600);
-
 }
 
+int respondTime;
+int yourTime;
 void loop()
-{ 
-    while(true)
-    {
-     Serial.print("Respond time input pin is: ");
-     Serial.print(RespTime.InPin);
-     //Serial.print(round(map(RespTime.Get(), 0, 1023, 1000, 5000)));
-     //Serial.print(analogRead(A2));
-     Serial.print("  | checking time input pin is:  ");
-     Serial.println(CheckEvery.InPin);
-     //Serial.println(map(CheckEvery.Get(), 0, 1023, 90000, 300000));
-     //Serial.println(analogRead(A0));
-     //Serial.println(button.Activated());
-    }
+{
   //delay(map(CheckEvery.Get(), 0, 1023, 90000, 300000));
   delay(10000);
-  if (test())
+
+  yourTime = test();
+  respondTime = round(map(RespTime.Get(), 0, 1023, 1000, 5000));
+
+  if (yourTime < respondTime)
   {
     Led.TurnOn(colors::Green);//Your response time is fine
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Your response");
+    lcd.print("time: ");
+    lcd.setCursor(0, 6);
+    lcd.print(yourTime);
+    lcd.setCursor(0, 7 + IntsDigits(yourTime));
+    lcd.print("ms");
     lcd.setCursor(0, 1);
-    lcd.print("time is fine");
+    lcd.print("this is fine");
   }
   else
   {
     Led.TurnOn(colors::Red);//Your response time is not fine
+    Led.TurnOff();
+    Led.TurnOn(colors::Red);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Your response");
+    lcd.print("time exceeded");
     lcd.setCursor(0, 1);
-    lcd.print("time isn't fine");
+    lcd.print("this is not fine");
   }
 }
 
-bool test()
+int test()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("testing respo -");
   lcd.setCursor(0, 1);
   lcd.print("press the button!");
-  int respondTime = round(map(RespTime.Get(), 0, 1023, 1000, 5000));
+
   Buzzer.TurnOn();
   Led.TurnOn(colors::Blue);
   unsigned long Start = millis();
@@ -82,5 +80,30 @@ bool test()
     }
   }
   Buzzer.TurnOff();
-  return (Start + respondTime > millis());
+  return (millis() - Start);
+}
+
+int IntsDigits(int theInt)
+{
+  theInt = abs(theInt);
+  if (theInt < 100000 && theInt >= 10000)
+  {
+    return (5);
+  }
+  if (theInt < 10000 && theInt >= 1000)
+  {
+    return (4);
+  }
+  if (theInt < 1000 && theInt >= 100)
+  {
+    return (3);
+  }
+  if (theInt < 100 && theInt >= 10)
+  {
+    return (2);
+  }
+  if (theInt < 10)
+  {
+    return (1);
+  }
 }
