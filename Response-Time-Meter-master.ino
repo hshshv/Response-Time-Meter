@@ -23,17 +23,27 @@ void setup()
   lcd.print("Ready");
   Led.TurnOn(colors::Green);
   Serial.begin(9600);
+  while(true)
+  {/*
+    Serial.print("Check every: ");
+    Serial.print(GetDelayTime());
+    Serial.print("  | Resp time: ");
+    Serial.println(GetRespTime());*/
+    Serial.print("Check every: ");
+    Serial.print(CheckEvery.Get());
+    Serial.print("  | Resp time: ");
+    Serial.println(analogRead(A1));
+  }
 }
 
 int respondTime;
 int yourTime;
 void loop()
 {
-  //delay(map(CheckEvery.Get(), 0, 1023, 90000, 300000));
-  delay(10000);
+  delay(GetDelayTime());
+  //delay(10000);
 
   yourTime = test();
-  respondTime = round(map(RespTime.Get(), 0, 1023, 1000, 5000));
 
   if (yourTime < respondTime)
   {
@@ -41,9 +51,9 @@ void loop()
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("time: ");
-    lcd.setCursor(0, 6);
+    lcd.setCursor(6, 0);
     lcd.print(yourTime);
-    lcd.setCursor(0, 7 + IntsDigits(yourTime));
+    lcd.setCursor(7 + IntsDigits(yourTime), 0);
     lcd.print("ms");
     lcd.setCursor(0, 1);
     lcd.print("this is fine");
@@ -68,7 +78,7 @@ int test()
   lcd.print("testing respo -");
   lcd.setCursor(0, 1);
   lcd.print("press the button!");
-
+  respondTime = GetRespTime();
   Buzzer.TurnOn();
   Led.TurnOn(colors::Blue);
   unsigned long Start = millis();
@@ -106,4 +116,14 @@ int IntsDigits(int theInt)
   {
     return (1);
   }
+}
+
+int GetDelayTime()//כל כמה זמן לבצע בדיקה?
+{
+  return(map(CheckEvery.Get(), 0, 1023, 5000, 1800000));
+}
+
+int GetRespTime()
+{
+  return(round(map(RespTime.Get(), 0, 1023, 1000, 5000)));
 }
